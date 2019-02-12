@@ -1,9 +1,13 @@
 var Pattern = function() {
-   this.firstIntentDict = [
-    // {
-    //   pattern: /((w|W)hat)?.*\b(in|of|at)\b (\w+)/i,
-    //   intent: "Location"
-    // },
+  this.firstIntentDict = [
+    {
+      pattern: /(Hi|Hello|Hey)/i,
+      intent: "Hello"
+    },
+    {
+      pattern: /(Exit|Bye|Goodbye)/i,
+      intent: "Exit"
+    },
     {
       pattern: /rainy|rain|sunny|sun|cloudy|cloud|cold|hot|weather/i,
       intent: "Weather"
@@ -30,10 +34,8 @@ var Pattern = function() {
       pattern: /(rainy|rain|sunny|sun|cloudy|cloud|cold|hot)/i,
       entity: "Kind",
       group: 1
-    },
-    
-
-  ]
+    }
+  ];
 };
 
 exports.Pattern = new Pattern();
