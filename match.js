@@ -12,14 +12,15 @@ Matcher.prototype.getIntent = (str, cb) => {
   else return cb({});
 };
 
-Matcher.prototype.getEntities = (str, cb) => {
-  var entities = {};
-  var entitiesPatternDict = dictSelector(cb.intent);
+Matcher.prototype.getEntities = (str, intent, cb) => {
+  var entities = new Map();
+  var entitiesPatternDict = dictSelector(intent);
   entitiesPatternDict.forEach(element => {
     if(str.match(element.pattern)){
-      console.log(element.entity+":"+ str.match(element.pattern)[element.group]);
+      entities.set(element.entity, str.match(element.pattern)[element.group])
     }
   });
+  return cb({entities:entities});
 };
 
 exports.Matcher = new Matcher();
