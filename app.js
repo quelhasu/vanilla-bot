@@ -1,7 +1,7 @@
 "use strict";
 const request = require("request");
-const api_secret = "3256f19960bc8409e6825ee8382d1389";
 const matcher = require("./match.js").Matcher;
+const weather = require("./weather.js").Weather;
 
 const Readline = require("readline"); //for reading inputs
 const rl = Readline.createInterface({
@@ -11,54 +11,62 @@ const rl = Readline.createInterface({
   terminal: false
 });
 
-rl.setPrompt(">\n");
+rl.setPrompt("> ");
 rl.prompt();
 rl.on("line", reply => {
-  // console.log(`you said ${reply}`);
-  // var location = getUserLocation(reply);
-  // if (location) {
-  //   getWeatherFor(location);
-  // }
   matcher.getIntent(reply, cb => {
-    matcher.getEntities(reply, cb);
-  })
-
-  rl.prompt();
+    switch (cb.intent) {
+      case "Weather":
+        matcher.getEntities(reply, cb.intent, cb => {
+          if (!cb.entities.has("Location")) {
+            console.log("Please give a real location !");
+            rl.prompt();
+          } else {
+            if (cb.entities.has("Day") || !cb.entities.has("Forecast")) {
+              weather.getDayWeather(cb.entities.get("Location"), cb.entities.get("Day"), cb => {
+                console.log(`It's ${getFeel(cb.temp)} ${cb.day} in ${cb.location} with temp of ${cb.temp}°C`);
+                rl.prompt();
+              });
+            }
+            else if(cb.entities.has("Forecast")){
+              weather.getForecastWeather(cb.entities.get("Location"), cb => {
+                console.log(`The weather in ${cb.location} in the next 5 days :`);
+                cb.temps.forEach(temp => {
+                  console.log(`\tIt'll be ${getFeel(temp)} with temp of ${temp}°C`);
+                });
+                
+                rl.prompt();
+              })
+            }
+          }
+        });
+        break;
+      case "Hello":
+        console.log(`${cb.intent} to you!`);
+        rl.prompt();
+        break;
+      case "Exit":
+        console.log(`Goodbye bro!`);
+        process.exit();
+        break;
+      default: {
+        console.log("Sorry, don't understand!");
+        rl.prompt();
+      }
+    }
+  });
 });
 
-function getUserLocation(reply) {
-  var loc = "";
-  if ((loc = reply.match(/(w|W)hat.*\b(in|of|at)\b (\w+)/, "i"))) return loc[3];
-  else if ((loc = reply.match(/^.*\b(in|of|at)\b (\w+)/, "i"))) return loc[2];
-}
-
-function unixConverter(t) {
-  return new Date(t * 1000);
-}
-
-function getWeatherFor(location) {
-  request(
-    "https://api.openweathermap.org/data/2.5/weather?q=" + location + "&units=metric&appid=" + api_secret,
-    { json: true },
-    (err, res, body) => {
-      if (err) {
-        return console.log(err);
-      }
-      console.log("Weather in " + location + " : " + body.main.temp + "°C");
-    }
-  );
-
-  // request(
-  //   "https://api.openweathermap.org/data/2.5/forecast?q=" + location + "&units=metric&appid=" + api_secret,
-  //   { json: true },
-  //   (err, res, body) => {
-  //     if (err) {
-  //       return console.log(err);
-  //     }
-  //     console.log(`Weather for next 5 days in ${location} :`);
-  //     for (var i = 0; i < 5; i++) {
-  //       console.log(unixConverter(body.list[i].dt) + " " + body.list[i].main.temp + "°C");
-  //     }
-  //   }
-  // );
+let getFeel = temp => {
+  if(temp<5)
+    {return "shivering cold";}
+    else if(temp>=5 && temp<15)
+      {return "pretty cold";}
+    else if(temp>=15 && temp<25)
+      {return "moderately cold";}
+    else if(temp>=25 && temp<32)
+      {return "quite warm";}
+    else if(temp>=32 && temp<40)
+      {return "Hot";}
+    else {return "Super Hot";}
 }
