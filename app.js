@@ -11,6 +11,9 @@ const rl = Readline.createInterface({
   terminal: false
 });
 
+const github = "https://github.com/quelhasu/vanilla-bot";
+
+console.log(`Please visit ${github}`);
 rl.setPrompt("> ");
 rl.prompt();
 rl.on("line", reply => {
@@ -24,7 +27,7 @@ rl.on("line", reply => {
           } else {
             if (cb.entities.has("Day") || !cb.entities.has("Forecast")) {
               weather.getDayWeather(cb.entities.get("Location"), cb.entities.get("Day"), cb => {
-                console.log(`It's ${getFeel(cb.temp)} ${cb.day} in ${cb.location} with temp of ${cb.temp}°C`);
+                console.log(`It's ${weather.NLWeather(cb.temp)} ${cb.day} in ${cb.location} with temp of ${cb.temp}°C`);
                 rl.prompt();
               });
             }
@@ -32,7 +35,7 @@ rl.on("line", reply => {
               weather.getForecastWeather(cb.entities.get("Location"), cb => {
                 console.log(`The weather in ${cb.location} in the next 5 days :`);
                 cb.temps.forEach(temp => {
-                  console.log(`\tIt'll be ${getFeel(temp)} with temp of ${temp}°C`);
+                  console.log(`\tIt'll be ${weather.NLWeather(temp)} with temp of ${temp}°C`);
                 });
                 
                 rl.prompt();
@@ -47,6 +50,7 @@ rl.on("line", reply => {
         break;
       case "Exit":
         console.log(`Goodbye bro!`);
+        console.log(`Please visit ${github}`);
         process.exit();
         break;
       default: {
@@ -57,16 +61,3 @@ rl.on("line", reply => {
   });
 });
 
-let getFeel = temp => {
-  if(temp<5)
-    {return "shivering cold";}
-    else if(temp>=5 && temp<15)
-      {return "pretty cold";}
-    else if(temp>=15 && temp<25)
-      {return "moderately cold";}
-    else if(temp>=25 && temp<32)
-      {return "quite warm";}
-    else if(temp>=32 && temp<40)
-      {return "Hot";}
-    else {return "Super Hot";}
-}
