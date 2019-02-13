@@ -9,7 +9,7 @@ var Pattern = function() {
       intent: "Exit"
     },
     {
-      pattern: /rainy|rain|sunny|sun|cloudy|cloud|cold|hot|weather/i,
+      pattern: /rainy|rain|sunny|sun|cloudy|cloud|cold|hot|weather|snow/i,
       intent: "Weather"
     }
   ];
@@ -31,7 +31,7 @@ var Pattern = function() {
       group: 1
     },
     {
-      pattern: /(rainy|rain|sunny|sun|cloudy|cloud|cold|hot)/i,
+      pattern: /(rainy|rain|sunny|sun|cloudy|cloud|cold|hot|snow)/i,
       entity: "Kind",
       group: 1
     }

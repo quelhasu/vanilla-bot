@@ -21,25 +21,29 @@ rl.on("line", reply => {
     switch (cb.intent) {
       case "Weather":
         matcher.getEntities(reply, cb.intent, cb => {
+          var kind = cb.entities.get("Kind");
           if (!cb.entities.has("Location")) {
             console.log("Please give a real location !");
             rl.prompt();
           } else {
             if (cb.entities.has("Day") || !cb.entities.has("Forecast")) {
               weather.getDayWeather(cb.entities.get("Location"), cb.entities.get("Day"), cb => {
+                if (kind) {
+                  var responseWeatherUser = cb.weather.includes(kind) ? "Yes" : "No";
+                  console.log(`${responseWeatherUser}, tomorrow it's ${cb.weather}`);
+                }
                 console.log(`It's ${weather.NLWeather(cb.temp)} ${cb.day} in ${cb.location} with temp of ${cb.temp}°C`);
                 rl.prompt();
               });
-            }
-            else if(cb.entities.has("Forecast")){
+            } else if (cb.entities.has("Forecast")) {
               weather.getForecastWeather(cb.entities.get("Location"), cb => {
                 console.log(`The weather in ${cb.location} in the next 5 days :`);
-                cb.temps.forEach(temp => {
-                  console.log(`\tIt'll be ${weather.NLWeather(temp)} with temp of ${temp}°C`);
+                cb.temps.forEach(el => {
+                  console.log(`\tIt'll be ${weather.NLWeather(el.temp)} with ${el.weather} and temp of ${el.temp}°C`);
                 });
-                
+
                 rl.prompt();
-              })
+              });
             }
           }
         });
@@ -60,4 +64,3 @@ rl.on("line", reply => {
     }
   });
 });
-
